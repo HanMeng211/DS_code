@@ -1,0 +1,232 @@
+//SeqList.h 顺序表各项功能的接口及函数的声明
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<assert.h>
+typedef int SLDatatype;
+typedef struct SeqList
+{
+	SLDatatype* a;   //存储数据空间的指针
+	int size;  //有效数据的个数
+	int capacity; //容量空间大小
+}SeqList;
+//顺序表初始化声明
+void SeqListInit(SeqList* pSl);
+//顺序表销毁声明
+void SeqListDestory(SeqList* pSl);
+//检查空间，如果满了，进行空间增容
+void CheckCapacity(SeqList* pSl);
+//顺序表打印声明
+void SeqListPrint(SeqList* pSl);
+//顺序表尾插
+void SeqListPushBack(SeqList* pSl,SLDatatype x);
+//顺序表头插
+void SeqListPushFront(SeqList* pSl, SLDatatype x);
+//顺序表尾删
+void SeqListPopBack(SeqList* pSl);
+//顺序表头删
+void SeqListPopFront(SeqList* pSl);
+//顺序表查找
+SLDatatype SeqListFind(SeqList* pSl, SLDatatype x);
+//顺序表在pos位置插入
+void SeqListInsert(SeqList* pSl, int pos, SLDatatype x);
+//顺序表删除pos位置的值
+void SeqListErase(SeqList* pSl, int pos);
+
+
+
+
+
+//SeqList.c 各个接口功能的实现
+#include"SeqList.h"
+void CheckCapacity(SeqList* pSl)
+{
+	//空间不够，需要增容
+	if (pSl->size == pSl->capacity)
+	{
+		SLDatatype* tmp = (SLDatatype*)realloc(pSl->a, sizeof(SLDatatype)*pSl->capacity * 2);
+		//如果空间不足，可能增容失败
+		if (pSl->a == NULL)
+		{
+			printf("顺序表已满,无法插入\n");
+			exit(-1);
+		}
+		pSl->a = tmp;
+		pSl->capacity *= 2;
+	}
+}
+//顺序表初始化；需要传址
+void SeqListInit(SeqList* pSl)
+{
+	pSl->a = (SLDatatype*)malloc(sizeof(SLDatatype)* 4);
+	//malloc失败
+	if (pSl->a == NULL)
+	{
+		printf("malloc fail\n");
+		exit(-1);
+	}
+	memset(pSl->a, 0,sizeof(SLDatatype) * 4);
+	pSl->size = 0;
+	pSl->capacity = 4;
+}
+//顺序表销毁；需要传址
+void SeqListDestory(SeqList* pSl)
+{
+	free(pSl->a);
+	pSl->a = NULL;
+	pSl->size = 0;
+	pSl->capacity = 0;
+}
+//顺序表打印
+void SeqListPrint(SeqList* pSl)
+{
+	for (int i = 0; i < pSl->size; ++i)
+	{
+		printf("%d ", pSl->a[i]);
+	}
+	printf("\n");
+}
+//顺序表尾插
+void SeqListPushBack(SeqList* pSl, SLDatatype x)
+{
+	assert(pSl);
+	CheckCapacity(pSl);
+	//空间够了，直接把插入的数据放到a[size]位置处
+	pSl->a[pSl->size] = x;
+	pSl->size++;
+}
+//顺序表头插
+void SeqListPushFront(SeqList* pSl, SLDatatype x)
+{
+	assert(pSl);
+	CheckCapacity(pSl);
+	//从最后一个数的位置开始一个一个往后移
+	int end = pSl->size - 1;
+	while (end >= 0)
+	{
+		pSl->a[end + 1] = pSl->a[end];
+		--end;
+	}
+	//x赋值给头位置
+	pSl->a[0] = x;
+	pSl->size++;
+}
+//顺序表尾删
+void SeqListPopBack(SeqList* pSl)
+{
+	assert(pSl);
+	//若无此步骤size为0时再size--为-1
+	assert(pSl->size > 0);
+	pSl->size--;
+}
+//顺序表头删
+void SeqListPopFront(SeqList* pSl)
+{
+	assert(pSl);
+	assert(pSl->size > 0);
+	int begin = 1;
+	//从第二个数的位置开始往前移
+	while (begin < pSl->size)
+	{
+		pSl->a[begin - 1] = pSl->a[begin];
+		++begin;
+	}
+	pSl->size--;
+}
+//顺序表查找,可以查找一个数在不在数组里，并返回其下标，配合其他接口使用
+SLDatatype SeqListFind(SeqList* pSl, SLDatatype x)
+{
+	assert(pSl);
+	for (int i = 0; i < pSl->size; ++i)
+	{
+		if (pSl->a[i] == x)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+//顺序表在pos位置插入
+void SeqListInsert(SeqList* pSl, int pos, SLDatatype x)
+{
+	assert(pSl);
+	assert(pos >= 0 && pos < pSl->size);
+	CheckCapacity(pSl);
+	int end = pSl->size - 1;
+	while (end >= pos)
+	{
+		pSl->a[end + 1] = pSl->a[end];
+		--end;
+	}
+	pSl->a[pos] = x;
+	pSl->size++;
+}
+//顺序表删除pos位置的值
+void SeqListErase(SeqList* pSl, int pos)
+{
+	assert(pSl);
+	assert(pos >= 0 && pos < pSl->size);
+	while (pos < pSl->size - 1)
+	{
+		pSl->a[pos] = pSl->a[pos + 1];
+		++pos;
+	}
+	pSl->size--;
+}
+
+
+
+
+
+
+
+
+//test.c 用于测试各项功能
+#include"SeqList.h"
+int main()
+{
+	SeqList Sl;
+	//测试顺序表初始化
+	SeqListInit(&Sl);
+	//测试顺序表尾插
+	SeqListPushBack(&Sl, 1);
+	SeqListPushBack(&Sl, 2);
+	SeqListPushBack(&Sl, 3);
+	SeqListPushBack(&Sl, 4);
+	SeqListPushBack(&Sl, 5);
+	SeqListPrint(&Sl);
+	//测试顺序表头插
+	SeqListPushFront(&Sl, 0);
+	SeqListPrint(&Sl);
+	//测试顺序表尾删
+	SeqListPopBack(&Sl);
+	SeqListPopBack(&Sl);
+	SeqListPrint(&Sl);
+	//测试顺序表头删
+	SeqListPopFront(&Sl);
+	SeqListPrint(&Sl);
+	SeqListFind(&Sl,1);
+	SeqListPrint(&Sl);
+	//测试顺序表在pos位置插入
+	SeqListInsert(&Sl, 1, 20);
+	SeqListPrint(&Sl);
+	//测试顺序表删除pos位置的值
+	SeqListErase(&Sl, 0);
+	SeqListPrint(&Sl);
+	//测试顺序表查找
+	int pos = SeqListFind(&Sl, 3);
+	if (pos != -1)
+	{
+		printf("有3\n");
+	}
+	//查找配合删除删掉指定的数
+	int pos1 = SeqListFind(&Sl, 2);
+	if (pos1 != -1)
+	{
+		SeqListErase(&Sl, pos1);
+	}
+	SeqListPrint(&Sl);
+	//顺序表销毁
+	SeqListDestory(&Sl);
+	return 0;
+}
