@@ -1,0 +1,27 @@
+#pragma once
+
+
+#include<stdio.h>
+#include<assert.h>
+#include<stdlib.h>
+typedef int LTDataType;
+typedef struct ListNode
+{
+	struct ListNode* next;  //后一个
+	struct ListNode* prev;  //前一个
+	LTDataType data;  //数据
+}ListNode;
+//创建返回链表的头节点
+ListNode* ListCreat();
+//申请一个新节点
+ListNode* BuySlistNode(LTDataType x);
+//双链表打印
+void ListPrint(ListNode* phead);
+//双链表尾插
+void ListPushBack(ListNode* phead, LTDataType x);
+//双链表尾删
+void ListPopBack(ListNode* phead);
+//双链表头插
+void ListPushFront(ListNode* phead, LTDataType x);
+//双链表头删
+void ListPopFront(ListNode* phead);
