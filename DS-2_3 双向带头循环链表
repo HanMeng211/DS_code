@@ -24,4 +24,4 @@ void ListPopBack(ListNode* phead);
 //双链表头插
 void ListPushFront(ListNode* phead, LTDataType x);
 //双链表头删
-void ListPopFront(ListNode* phead);
+void ListPopFront(ListNode* phead);//未完
