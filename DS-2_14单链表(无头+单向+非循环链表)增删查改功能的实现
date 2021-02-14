@@ -1,0 +1,261 @@
+//SingleList.h 单链表各项功能的接口及函数的声明
+
+
+#pragma once
+#include<stdio.h>
+#include<stdlib.h>
+typedef int SLTDataType;
+typedef struct SListNode
+{
+	//数据
+	int data;
+	//指针指向下一个节点
+	struct SListNode* next;
+}SListNode;
+
+//打印链表
+void SListPrintf(SListNode* phead);
+//动态申请一个节点
+SListNode* BuySListNode(SLTDataType x);
+//尾插
+void SListPushBack(SListNode** pphead, SLTDataType x);
+//头插
+void SListPushFront(SListNode** pphead, SLTDataType x);
+//尾删
+void SListPopBack(SListNode** pphead);
+//头删
+void SListPopFront(SListNode** pphead);
+//查找
+SListNode* SListFind(SListNode* phead, SLTDataType x);
+//在pos位置之后插入x
+void SListInsertAfert(SListNode* pos, SLTDataType x);
+//删除pos位置之后的值
+void SListEraseAfert(SListNode* pos);
+
+
+
+
+
+
+//SingleList.c 各个接口功能的实现
+
+
+#include"SingleList.h"
+//打印链表
+void SListPrintf(SListNode* phead)
+{
+	SListNode* cur = phead;
+	while (cur != NULL)
+	{
+		printf("%d->", cur->data);
+		cur = cur->next;
+	}
+	printf("NULL\n");
+}
+//动态申请一个节点
+SListNode* BuySListNode(SLTDataType x)
+{
+	SListNode* newnode = (SListNode*)malloc(sizeof(SListNode));
+	if (newnode == NULL)
+	{
+		printf("malloc node fail!\n");
+		exit(-1);
+	}
+	newnode->data = x;
+	newnode->next = NULL;
+	return newnode;
+}
+//尾插
+void SListPushBack(SListNode** pphead, SLTDataType x)
+{
+	SListNode* newnode = BuySListNode(x);
+	//phead为空直接把newnode给phead
+	if (*pphead == NULL)
+	{
+		*pphead = newnode;
+	}
+	else
+	{
+		SListNode* tail = *pphead;
+		while (tail->next != NULL)
+		{
+			tail = tail->next;
+		}
+		tail->next = newnode;
+	}
+
+}
+//头插
+void SListPushFront(SListNode** pphead, SLTDataType x)
+{
+	//开一个新的节点
+	SListNode* newnode = BuySListNode(x);
+	if (*pphead == NULL)
+	{
+		*pphead = newnode;
+	}
+	else
+	{
+		SListNode* cur = *pphead;
+		*pphead = newnode;
+		newnode->next = cur;
+	}
+}
+//尾删
+void SListPopBack(SListNode** pphead)
+{
+	//防止空链表再删
+	if (*pphead == NULL)
+	{
+		return;
+	}
+	//链表只有一个节点，防止空指针
+	else if ((*pphead)->next == NULL)
+	{
+		//free的是这段空间，指针还在
+		free(*pphead);
+		*pphead = NULL;
+	}
+	else
+	{
+		SListNode* tail = *pphead;
+		while (tail->next->next != NULL)
+		{
+			tail = tail->next;
+		}
+		free(tail->next);
+		tail->next = NULL;
+	}
+}
+//头删
+void SListPopFront(SListNode** pphead)
+{
+	//防止空链表再删
+	if (*pphead == NULL)
+	{
+		return;
+	}
+	//链表只有一个节点，防止空指针
+	else if ((*pphead)->next == NULL)
+	{
+		free(*pphead);
+		*pphead = NULL;
+	}
+	else
+	{
+		//保存pphead下一个节点的位置
+		SListNode* cur = (*pphead)->next;
+		free(*pphead);
+		*pphead = cur;
+	}
+
+}
+//查找
+SListNode* SListFind(SListNode* phead, SLTDataType x)
+{
+	SListNode* cur = phead;
+	while (cur != NULL)
+	{
+		if (cur->data == x)
+		{
+			printf("找到%d了\n", x);
+			return cur;
+		}
+		else
+		{
+			cur = cur->next;
+		}
+	}
+	printf("没找到%d\n", x);
+	return NULL;
+}
+//在pos位置之后插入x
+void SListInsertAfert(SListNode* pos, SLTDataType x)
+{
+	//开一个新的节点
+	SListNode* newnode = BuySListNode(x);
+	SListNode* posnext = pos->next;
+	pos->next = newnode;
+	newnode->next = posnext;
+}
+//删除pos位置之后的值
+void SListEraseAfert(SListNode* pos)
+{
+	if (pos->next == NULL)
+	{
+		return;
+	}
+	else
+	{
+		SListNode* posnextnext = pos->next->next;
+		free(pos->next);
+		pos->next = NULL;
+		pos->next = posnextnext;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+//test.c 用于测试各项功能
+
+
+#include"SingleList.h"
+
+int main()
+{
+	SListNode* phead = NULL;//空链表
+	//尾插
+	printf("尾插测试:\n\n");
+	SListPushBack(&phead, 0);
+	SListPushBack(&phead, 1);
+	SListPushBack(&phead, 2);
+	SListPushBack(&phead, 3);
+	SListPushBack(&phead, 4);
+	SListPushBack(&phead, 5);
+	SListPrintf(phead);
+	printf("\n");
+	//头插
+	printf("头插测试:\n\n");
+	SListPushFront(&phead, -1);
+	SListPushFront(&phead, -2);
+	SListPushFront(&phead, -3);
+	SListPushFront(&phead, -4);
+	SListPushFront(&phead, -5);
+	SListPrintf(phead);
+	printf("\n");
+	//尾删
+	printf("尾删测试:\n\n");
+	SListPopBack(&phead);
+	SListPrintf(phead);
+	printf("\n");
+	//头删
+	printf("头删测试:\n\n");
+	SListPopFront(&phead);
+	SListPrintf(phead);
+	printf("\n");
+	//查找
+	printf("查找测试:\n\n");
+	SListFind(phead, 3);
+	printf("\n");
+	//在pos位置之后插入x
+	printf("在pos位置后插入x测试:\n\n");
+	SListNode* pos = SListFind(phead,3);//先查找到链表中3的位置，再在3的位置后面插入30
+	SListInsertAfert(pos, 30);
+	SListPrintf(phead);
+	printf("\n");
+	//删除pos位置之后的值
+	printf("删除pos位置之后的值测试:\n\n");
+	SListNode* pos1 = SListFind(phead, 3);
+	SListEraseAfert(pos1);
+	SListPrintf(phead);
+	printf("\n");
+	return 0;
+}
+
