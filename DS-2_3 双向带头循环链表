@@ -1,27 +1,228 @@
+//DoubleList.h 链表各项功能的接口及函数的声明
+
 #pragma once
 
-
 #include<stdio.h>
-#include<assert.h>
 #include<stdlib.h>
+#include<assert.h>
+
 typedef int LTDataType;
 typedef struct ListNode
 {
-	struct ListNode* next;  //后一个
-	struct ListNode* prev;  //前一个
-	LTDataType data;  //数据
+    //值
+	LTDataType data;
+	//前驱指针
+	struct ListNode* prev;
+	//后驱指针
+	struct ListNode* next;
 }ListNode;
+
 //创建返回链表的头节点
 ListNode* ListCreat();
-//申请一个新节点
-ListNode* BuySlistNode(LTDataType x);
-//双链表打印
+//动态申请一个节点
+ListNode* BuyListNode(LTDataType x);
+//打印链表
 void ListPrint(ListNode* phead);
-//双链表尾插
+//尾插
 void ListPushBack(ListNode* phead, LTDataType x);
-//双链表尾删
-void ListPopBack(ListNode* phead);
-//双链表头插
+//头插
 void ListPushFront(ListNode* phead, LTDataType x);
-//双链表头删
-void ListPopFront(ListNode* phead);//
+//尾删
+void ListPopBack(ListNode* phead);
+//头删
+void ListPopFront(ListNode* phead);
+//查找
+ListNode* ListFind(ListNode* phead, LTDataType x);
+//在pos之前插入x
+void ListInsert(ListNode* pos, LTDataType x);
+//删除pos位置节点
+void ListErase(ListNode* pos);
+
+
+
+
+
+
+
+
+//DoubleList.c 各个接口功能的实现
+
+#include"DoubleList.h"
+
+//创建返回链表的头节点
+ListNode* ListCreat()
+{
+	ListNode* phead = (ListNode*)malloc(sizeof(ListNode));
+	phead->prev = phead;
+	phead->next = phead;
+	return phead;
+}
+//动态申请一个节点
+ListNode* BuyListNode(LTDataType x)
+{
+	ListNode* newnode = (ListNode*)malloc(sizeof(ListNode));
+	newnode->data = x;
+	//新节点前后指向空
+	newnode->next = NULL;
+	newnode->prev = NULL;
+	return newnode;
+}
+//打印链表
+void ListPrint(ListNode* phead)
+{
+	assert(phead);
+	ListNode* cur = phead->next;
+	while (cur != phead)
+	{
+		printf("%d ", cur->data);
+		cur = cur->next;
+	}
+	printf("\n");
+}
+//尾插
+void ListPushBack(ListNode* phead, LTDataType x)
+{
+	assert(phead);
+	ListNode* tail = phead->prev;
+	ListNode* newnode = BuyListNode(x);
+	phead->prev = newnode;
+	newnode->next = phead;
+	tail->next = newnode;
+	newnode->prev = tail;
+}
+//头插
+void ListPushFront(ListNode* phead, LTDataType x)
+{
+	assert(phead);
+	ListNode* newnode = BuyListNode(x);
+	ListNode* next = phead->next;
+	phead->next = newnode;
+	newnode->next = next;
+	next->prev = newnode;
+	newnode->prev = phead;
+}
+//尾删
+void ListPopBack(ListNode* phead)
+{
+	assert(phead);
+	//没有数据了，只有一个头节点
+	assert(phead->next != phead);
+	ListNode* tailprev = phead->prev->prev;
+	ListNode* tail = phead->prev;
+	phead->prev = tailprev;
+	tailprev->next = phead;
+	free(tail);
+}
+//头删
+void ListPopFront(ListNode* phead)
+{
+	assert(phead);
+	//链表没有数据了，不能在删了
+	assert(phead->next != phead);
+	ListNode* pheadnext = phead->next;
+	ListNode* next = pheadnext->next;
+	phead->next = next;
+	next->prev = phead;
+	free(pheadnext);
+}
+//查找
+ListNode* ListFind(ListNode* phead, LTDataType x)
+{
+	assert(phead);
+	ListNode* cur = phead->next;
+	while (cur != phead)
+	{
+		if (cur->data == x)
+		{
+			printf("找到了%d\n", cur->data);
+			return cur;
+		}
+		else
+		{
+			cur = cur->next;
+		}
+	}
+	printf("没找到%d\n", x);
+	return NULL;
+}
+//在pos之前插入x
+void ListInsert(ListNode* pos, LTDataType x)
+{
+	assert(pos);
+	ListNode* newnode = BuyListNode(x);
+	ListNode* posprev = pos->prev;
+	newnode->next = pos;
+	pos->prev = newnode;
+	posprev->next = newnode;
+	newnode->prev = posprev;
+}
+//删除pos位置节点
+//注意这里pos不能是phead,否则就破坏了链表大结构
+void ListErase(ListNode* pos)
+{
+	assert(pos);
+	assert(pos->next != pos);
+	ListNode* posprev = pos->prev;
+	ListNode* posnext = pos->next;
+	posprev->next = posnext;
+	posnext->prev = posprev;
+	free(pos);
+}
+
+
+
+
+
+
+
+
+//test.c 用于测试各项功能
+
+#include"DoubleList.h"
+
+int main()
+{
+	ListNode* phead = ListCreat();
+	//尾插
+	printf("尾插测试: ");
+	ListPushBack(phead, 1);
+	ListPushBack(phead, 2);
+	ListPushBack(phead, 3);
+	ListPushBack(phead, 4);
+	ListPushBack(phead, 5);
+	ListPrint(phead);
+	//头插
+	printf("头插测试: ");
+	ListPushFront(phead, 0);
+	ListPushFront(phead, -1);
+	ListPushFront(phead, -2);
+	ListPushFront(phead, -3);
+	ListPushFront(phead, -4);
+	ListPushFront(phead, -5);
+	ListPrint(phead);
+	//尾删
+	printf("尾删测试: ");
+	ListPopBack(phead);
+	ListPrint(phead);
+	//头删
+	printf("头删测试: ");
+	ListPopFront(phead);
+	ListPrint(phead);
+	//查找
+	printf("查找测试: ");
+	ListFind(phead, 0);
+	//在pos之前插入x
+	printf("找pos位置的数测试: ");
+	ListNode* pos = ListFind(phead, 3);
+	printf("插入x到pos位置之后的结果为: ");
+	ListInsert(pos, 30);
+	ListPrint(phead);
+	//删除pos位置节点
+	printf("找pos位置的数测试: ");
+	ListNode* pos1 = ListFind(phead, 30);
+	printf("删除pos位置之后的结果为: ");
+	ListErase(pos1);
+	ListPrint(phead);
+	return 0;
+}
+
