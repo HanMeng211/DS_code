@@ -19,6 +19,8 @@ typedef struct ListNode
 
 //创建返回链表的头节点
 ListNode* ListCreat();
+//链表的销毁
+void ListDestory(ListNode* phead);
 //动态申请一个节点
 ListNode* BuyListNode(LTDataType x);
 //打印链表
@@ -56,6 +58,19 @@ ListNode* ListCreat()
 	phead->prev = phead;
 	phead->next = phead;
 	return phead;
+}
+//链表的销毁
+void ListDestory(ListNode* phead)
+{
+	ListNode* cur = phead->next;
+	while (cur != phead)
+	{
+		ListNode* next = cur->next;
+		ListErase(cur);
+		cur = next;
+	}
+	free(phead);
+	phead = NULL;
 }
 //动态申请一个节点
 ListNode* BuyListNode(LTDataType x)
@@ -223,6 +238,8 @@ int main()
 	printf("删除pos位置之后的结果为: ");
 	ListErase(pos1);
 	ListPrint(phead);
+	//链表的销毁
+	ListDestory(phead);
 	return 0;
 }
 
