@@ -1,0 +1,139 @@
+//Stack.h 栈的管理及接口
+
+
+#pragma once
+#include<stdio.h>
+#include<stdlib.h>
+#include<assert.h>
+typedef int STDataType;
+typedef struct Stack
+{
+	STDataType* a;//动态数组
+	int top;  //栈顶
+	int capacity;  //容量
+}Stack;
+//初始化栈
+void StackInit(Stack* pst);
+//销毁栈
+void StackDestroy(Stack* pst);
+//入栈
+void StackPush(Stack* pst, STDataType data);
+//出栈
+void StackPop(Stack* pst);
+//获取栈中有效元素的个数
+int StackSize(Stack* pst);
+//获取栈顶元素
+STDataType StackTop(Stack* pst);
+//检测栈是否为空，为空返回1，非空返回0
+int StackEmpty(Stack* pst);
+
+
+
+
+
+
+
+//Stack.c 栈各个接口功能的实现
+
+#include"Stack.h"
+//初始化栈
+void StackInit(Stack* pst)
+{
+	assert(pst);
+	pst->a = (STDataType*)malloc(sizeof(STDataType)* 4);
+	if (pst->a == NULL)
+	{
+		printf("malloc fail");
+	}
+	pst->top = 0;
+	pst->capacity = 4;
+}
+//销毁栈
+void StackDestroy(Stack* pst)
+{
+	assert(pst);
+	free(pst->a);
+	pst->a = NULL;
+	pst->top = 0;
+	pst->capacity = 0;
+}
+//入栈
+void StackPush(Stack* pst, STDataType data)
+{
+	assert(pst);
+	//空间不够需要增容
+	if (pst->top == pst->capacity)
+	{
+		//增容为原来的2倍
+		int* tem = (STDataType*)realloc(pst->a, sizeof(STDataType)* pst->capacity * 2);
+		if (tem == NULL)
+		{
+			printf("realloc fail");
+			exit(-1);
+		}
+		pst->a = tem;
+		pst->capacity = pst->capacity * 2;
+	}
+	pst->a[pst->top] = data;
+	pst->top++;
+}
+//出栈
+void StackPop(Stack* pst)
+{
+	assert(pst);
+	//判断栈是否为空
+	//相当于assert(pst->top != 0);
+	assert(!StackEmpty(pst));
+	pst->top--;
+}
+//获取栈中有效元素的个数
+int StackSize(Stack* pst)
+{
+	assert(pst);
+	//因为初始化top是0,如果初始化top是-1则返回top+1;
+	return pst->top;
+}
+//获取栈顶元素
+STDataType StackTop(Stack* pst)
+{
+	assert(pst);
+	assert(!StackEmpty(pst));
+	return pst->a[pst->top - 1];
+}
+//检测栈是否为空，为空返回1，非空返回0
+int StackEmpty(Stack* pst)
+{
+	assert(pst);
+	return pst->top == 0 ? 1 : 0;
+}
+
+
+
+
+
+//test.c测试
+
+#include"Stack.h"
+void test()
+{
+	//定义一个栈
+	Stack st;
+	StackInit(&st);
+	StackPush(&st, 1);
+	StackPush(&st, 2);
+	StackPush(&st, 3);
+	StackPush(&st, 4);
+	while (!StackEmpty(&st))
+	{
+		//取一个删一个
+		printf("%d ", StackTop(&st));
+		StackPop(&st);
+	}
+	StackDestroy(&st);
+	printf("\n");
+}
+int main()
+{
+	test();
+	return 0;
+}
