@@ -1,0 +1,165 @@
+//Queue.h 队列的管理及接口
+
+#pragma once
+#include<stdio.h>
+#include<assert.h>
+#include<stdlib.h>
+
+typedef int QDatatype;
+//链式结构：表示队列
+typedef struct QueueNode
+{
+	QDatatype data;
+	//指向下一个节点的指针
+	struct QueueNode* next;
+}QueueNode;
+
+//队列的结构
+typedef struct Queue
+{
+	QueueNode* front;//头指针
+	QueueNode* tail;//尾指针
+}Queue;
+//初始化队列
+void QueueInit(Queue* pq);
+//销毁队列
+void QueueDestroy(Queue* pq);
+//队尾入队列
+void QueuePush(Queue* pq, QDatatype x);
+//队头出队列
+void QueuePop(Queue* pq);
+//检测队列是否为空，为空返回1，非空返回0
+int QueueEmpty(Queue* pq);
+//获取队列中有效元素的个数
+int QueueSize(Queue* pq);
+//获取队列头部元素
+QDatatype QueueFront(Queue* pq);
+//获取队列队尾元素
+QDatatype QueueBack(Queue* pq);
+
+
+
+
+//Queue.c 队列各个接口功能的实现
+
+#include"Queue.h"
+//初始化队列
+void QueueInit(Queue* pq)
+{
+	assert(pq);
+	pq->front = pq->tail = NULL;
+}
+//销毁队列
+void QueueDestroy(Queue* pq)
+{
+	assert(pq);
+	QueueNode* cur = pq->front;
+	while (cur)
+	{
+		QueueNode* Next = cur->next;
+		free(cur);
+		cur = Next;
+	}
+	pq->front = pq->tail = NULL;
+}
+//队尾入队列
+void QueuePush(Queue* pq, QDatatype x)
+{
+	assert(pq);
+	QueueNode* newnode = (QueueNode*)malloc(sizeof(QueueNode));
+	newnode->data = x;
+	newnode->next = NULL;
+	if (pq->tail == NULL)
+	{
+		pq->front = pq->tail = newnode;
+	}
+	else
+	{
+		pq->tail->next = newnode;
+		pq->tail = newnode;
+	}
+}
+//队头出队列
+void QueuePop(Queue* pq)
+{
+	assert(pq);
+	//队列不能为空
+	assert(!QueueEmpty(pq));
+	//如果只有一个节点，防止tail野指针
+	if (pq->front == pq->tail)
+	{
+		free(pq->front);
+		pq->front = pq->tail = NULL;
+	}
+	//多个节点
+	else
+	{
+		QueueNode* Next = pq->front->next;
+		free(pq->front);
+		pq->front = Next;
+	}
+}
+//检测队列是否为空，为空返回1，非空返回0
+int QueueEmpty(Queue* pq)
+{
+	assert(pq);
+	return pq->front == NULL ? 1 : 0;
+}
+//获取队列中有效元素的个数
+int QueueSize(Queue* pq)
+{
+	assert(pq);
+	int count = 0;
+	QueueNode* cur = pq->front;
+	while (cur)
+	{
+		++count;
+		cur = cur->next;
+	}
+	return count;
+}
+//获取队列头部元素
+QDatatype QueueFront(Queue* pq)
+{
+	assert(pq);
+	assert(!QueueEmpty(pq));
+	return pq->front->data;
+}
+//获取队列队尾元素
+QDatatype QueueBack(Queue* pq)
+{
+	assert(pq);
+	assert(!QueueEmpty(pq));
+	return pq->tail->data;
+}
+
+
+
+
+
+
+//test.c测试
+
+#include"Queue.h"
+
+void TestQueue()
+{
+	Queue q;
+	QueueInit(&q);
+	QueuePush(&q, 1);
+	QueuePush(&q, 2);
+	QueuePush(&q, 3);
+	QueuePush(&q, 4);
+	while (!QueueEmpty(&q))
+	{
+		printf("%d ", QueueFront(&q));
+		QueuePop(&q);
+	}
+	printf("\n");
+	QueueDestroy(&q);
+}
+int main()
+{
+	TestQueue();
+	return 0;
+}
