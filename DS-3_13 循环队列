@@ -1,0 +1,118 @@
+typedef struct {
+    int* a;
+    //头
+    int Front;
+    //尾
+    int Rear;
+    int k;
+
+} MyCircularQueue;
+bool myCircularQueueIsEmpty(MyCircularQueue* obj);
+bool myCircularQueueIsFull(MyCircularQueue* obj);
+
+MyCircularQueue* myCircularQueueCreate(int k) {
+    MyCircularQueue* p = (MyCircularQueue*)malloc(sizeof(MyCircularQueue));
+    p->a = (int*)malloc((k + 1) * sizeof(int));
+    p->Front = p->Rear = 0;
+    p->k = k;
+    return p;
+}
+
+bool myCircularQueueEnQueue(MyCircularQueue* obj, int value) {
+    if(myCircularQueueIsFull(obj))
+        return false;
+    obj->a[obj->Rear] = value;
+    ++obj->Rear;
+    if(obj->Rear == obj->k + 1)
+    {
+        obj->Rear = 0;
+    }
+    return true;
+}
+
+bool myCircularQueueDeQueue(MyCircularQueue* obj) {
+    if(myCircularQueueIsEmpty(obj))
+    {
+        return false;
+    }
+    ++obj->Front;
+    if(obj->Front == obj->k + 1)
+    obj->Front = 0;
+    return true;
+}
+
+int myCircularQueueFront(MyCircularQueue* obj) {
+    if(myCircularQueueIsEmpty(obj))
+    {
+        return -1;
+    }
+    else
+    {
+        return obj->a[obj->Front];
+    }
+}
+
+int myCircularQueueRear(MyCircularQueue* obj) {
+    if(myCircularQueueIsEmpty(obj))
+        return -1;
+    int prev = obj->Rear - 1;
+    if(obj->Rear == 0)
+    {
+        prev = obj->k;
+    }
+    return obj->a[prev];
+}
+
+bool myCircularQueueIsEmpty(MyCircularQueue* obj) {
+    if(obj->Front == obj->Rear)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool myCircularQueueIsFull(MyCircularQueue* obj) {
+    int next = obj->Rear + 1;
+    //让下标循环，如果next超过数组，则置为0
+    //防止判满next超过数组下标
+    if(next == obj->k + 1)
+    {
+        next = 0;
+    }
+    //判满如果Rear+1==Front则满了true，否则没满false
+    if(next == obj->Front)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void myCircularQueueFree(MyCircularQueue* obj) {
+    free(obj->a);
+    obj->a = NULL;
+    free(obj);
+}
+
+/**
+ * Your MyCircularQueue struct will be instantiated and called as such:
+ * MyCircularQueue* obj = myCircularQueueCreate(k);
+ * bool param_1 = myCircularQueueEnQueue(obj, value);
+ 
+ * bool param_2 = myCircularQueueDeQueue(obj);
+ 
+ * int param_3 = myCircularQueueFront(obj);
+ 
+ * int param_4 = myCircularQueueRear(obj);
+ 
+ * bool param_5 = myCircularQueueIsEmpty(obj);
+ 
+ * bool param_6 = myCircularQueueIsFull(obj);
+ 
+ * myCircularQueueFree(obj);
+*/
