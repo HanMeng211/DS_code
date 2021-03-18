@@ -1,0 +1,206 @@
+//Heap.h 堆的管理及接口
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<assert.h>
+
+typedef int HPDataType;
+typedef struct Heap
+{
+	HPDataType* a;
+	int size;
+	int capacity;
+}Heap;
+
+//堆的向下调整算法
+void AdjustDown(HPDataType* a, int n, int root);
+//堆的向上调整算法
+void AdjustUp(HPDataType* a, int child);
+//堆的初始化
+void HeapInit(Heap* php, HPDataType* a,int n);
+//堆的销毁
+void HeapDestroy(Heap* php);
+//堆的插入
+void HeapPush(Heap* php, HPDataType x);
+//堆的删除
+void HeapPop(Heap* php);
+//堆里的数据个数
+int HeapSize(Heap* php);
+//判断堆是否为空
+int HeapEmpty(Heap* php);
+//取堆顶数据
+HPDataType HeapTop(Heap* php);
+
+
+
+
+
+
+
+//Heap.c 堆各个接口功能的实现
+
+
+#include "Heap.h"
+//堆向下调整算法
+//建小堆
+void AdjustDown(HPDataType* a, int n, int root)
+{
+	int parent = root;
+	int child = parent * 2 + 1;
+	//孩子超过数组下标结束
+	while (child < n)
+	{
+		//child始终左右孩子中小的那个
+		if (a[child + 1] < a[child] && child + 1 <n)//防止没有右孩子
+		{
+			++child;
+		}
+		//小的往上浮，大的往下沉
+		if (a[child] < a[parent])
+		{
+			int tem = a[parent];
+			a[parent] = a[child];
+			a[child] = tem;
+			parent = child;
+			child = parent * 2 + 1;
+		}
+		//中途child>parent则已满足小堆，直接break
+		else
+		{
+			break;
+		}
+	}
+}
+//堆的向上调整算法
+//建小堆
+void AdjustUp(HPDataType* a, int child)
+{
+	int parent = (child - 1) / 2;
+	while (child > 0)
+	{
+		if (a[child] < a[parent])
+		{
+			int tem = a[parent];
+			a[parent] = a[child];
+			a[child] = tem;
+			child = parent;
+			parent = (child - 1) / 2;
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+//堆的初始化
+void HeapInit(Heap* php, HPDataType* a, int n)
+{
+	assert(php);
+	assert(a);
+	php->a = (HPDataType*)malloc(n * sizeof(HPDataType));
+	if (php->a == NULL)
+	{
+		printf("malloc fail\n");
+		exit(-1);
+	}
+	for (int i = 0; i < n; i++)
+	{
+		php->a[i] = a[i];
+	}
+	//建堆
+	for (int i = (n - 2) / 2; i >= 0; --i)
+	{
+		AdjustDown(php->a, n, i);
+	}
+	php->capacity = n;
+	php->size = n;
+}
+//堆的销毁
+void HeapDestroy(Heap* php)
+{
+	assert(php);
+	free(php->a);
+	php->a = NULL;
+	php->capacity = 0;
+	php->size = 0;
+}
+//堆的插入
+void HeapPush(Heap* php, HPDataType x)
+{
+	assert(php);
+	if (php->size == php->capacity)
+	{
+		HPDataType* tem = (HPDataType*)realloc(php->a,php->capacity * 2 * sizeof(HPDataType));
+		if (tem == NULL)
+		{
+			printf("realloc fail\n");
+			exit(-1);
+		}
+		php->a = tem;
+		php->capacity *= 2;
+	}
+	php->a[php->size] = x;
+	++php->size;
+	AdjustUp(php->a,php->size - 1);
+}
+//堆的删除
+void HeapPop(Heap* php)
+{
+	assert(php);
+	assert(php->size > 0);
+	HPDataType tem = php->a[php->size - 1];
+	php->a[php->size - 1] = php->a[0];
+	php->a[0] = tem;
+	--php->size;
+	AdjustDown(php->a, php->size, 0);
+}
+//堆里的数据个数
+int HeapSize(Heap* php)
+{
+	assert(php);
+	return php->size;
+}
+//判断堆是否为空
+//为空返回1，不为空返回0
+int HeapEmpty(Heap* php)
+{
+	assert(php);
+	return php->size == 0 ? 1 : 0;
+}
+//取堆顶数据
+HPDataType HeapTop(Heap* php)
+{
+	assert(php);
+	assert(php->size > 0);
+	return php->a[0];
+}
+
+
+
+
+
+//test.c测试
+
+
+
+#include "Heap.h"
+void TestHeap()
+{
+	int arr[] = { 27, 28, 65, 25, 15, 34, 19, 49, 18, 37 };
+	Heap hp;
+	HeapInit(&hp, arr, sizeof(arr)/sizeof(int));
+	while (!HeapEmpty(&hp))
+	{
+		printf("%d ", HeapTop(&hp));
+		HeapPop(&hp);
+
+	}
+	printf("\n");
+	HeapDestroy(&hp);
+}
+int main()
+{
+	TestHeap();
+	return 0;
+}
+
