@@ -1,0 +1,12 @@
+//前序遍历
+void PrevOrder(BTNode* root)
+{
+	if (root == NULL)
+	{
+		printf("NULL ");
+		return;
+	}
+	printf("%c ", root->data);
+	PrevOrder(root->left);
+	PrevOrder(root->right);
+}
