@@ -1,0 +1,12 @@
+//后序遍历
+void PostOrder(BTNode* root)
+{
+	if (root == NULL)
+	{
+		printf("NULL ");
+		return;
+	}
+	PostOrder(root->left);
+	PostOrder(root->right);
+	printf("%c ", root->data);
+}
