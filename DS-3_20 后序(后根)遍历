@@ -1,4 +1,5 @@
 //后序遍历
+//左子树->右子树->根
 void PostOrder(BTNode* root)
 {
 	if (root == NULL)
