@@ -1,0 +1,12 @@
+//中序遍历
+void InOrder(BTNode* root)
+{
+	if (root == NULL)
+	{
+		printf("NULL ");
+		return;
+	}
+	InOrder(root->left);
+	printf("%c ", root->data);
+	InOrder(root->right);
+}
